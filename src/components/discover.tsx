@@ -116,12 +116,6 @@ export function Discover({
               <span>MEET YOUR NEXT CRAVING</span>
               <strong>Gochujang Chicken Bowl</strong>
             </div>
-            <ArrowUpRight size={21} />
-          </div>
-          <div className="round-stamp">
-            <span>LESS SCROLLING</span>
-            <Sparkles size={21} />
-            <span>MORE SAVORING</span>
           </div>
         </div>
       </section>

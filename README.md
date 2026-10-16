@@ -58,3 +58,7 @@ Supabase and AI integrations are optional and require live credentials to valida
 ## Data and image provenance
 
 `src/lib/data.ts` is the authoritative fictional development catalog. `npm run db:seed:generate` regenerates the idempotent PostgreSQL seed from that catalog. Monetary values use integer USD cents. Menu images are original AI-generated editorial food illustrations commissioned for this demo, stored locally in `public/food-editorial.png`; no external photo hotlinks are used. Images are illustrative and cannot establish ingredients or allergen safety. Fonts are bundled locally through Fontsource.
+
+## Portfolio preview
+
+Both experiences run from this project: Customer at `/` and Merchant at `/merchant`. The preferred Merchant design keeps Quick Actions (without the duplicate AI tile) and the orange Ask MoodAI floating button. See [portfolio demo boundaries and release checklist](docs/portfolio-demo.md) before sharing publicly. Vercel deployments run in integration-free public demo mode; local integration development is preserved.

@@ -32,6 +32,26 @@ export function Deck({
   const dish = dishById(app.deck.ids[index]);
   const pointer = useRef<{ x: number; y: number } | null>(null);
   const [drag, setDrag] = useState(0);
+  const card = useRef<HTMLElement>(null);
+  const swiping = useRef(false);
+  const [leaving, setLeaving] = useState(false);
+  async function decide(decision: "like" | "skip") {
+    if (swiping.current) return;
+    swiping.current = true;
+    setLeaving(true);
+    const direction = decision === "like" ? 1 : -1;
+    if (card.current && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      await card.current.animate(
+        [{ transform: `translateX(${drag}px) rotate(${drag / 25}deg)`, opacity: 1 },
+         { transform: `translateX(${direction * 460}px) rotate(${direction * 18}deg)`, opacity: 0 }],
+        { duration: 220, easing: "cubic-bezier(.2,.7,.3,1)" },
+      ).finished.catch(() => {});
+    }
+    setDrag(0);
+    app.swipe(decision);
+    swiping.current = false;
+    setLeaving(false);
+  }
   if (!dish)
     return (
       <EmptyState
@@ -72,18 +92,20 @@ export function Deck({
         <div className="card-shadow shadow-two" />
         <div className="card-shadow shadow-one" />
         <article
-          className="swipe-card"
+          key={dish.id}
+          ref={card}
+          className={`swipe-card ${drag ? "is-dragging" : ""}`}
           tabIndex={0}
           aria-label={`${dish.name}. Use the Skip or Like buttons, or left and right arrow keys.`}
           onKeyDown={(e) => {
             if (e.target !== e.currentTarget) return;
             if (e.key === "ArrowRight") {
               e.preventDefault();
-              app.swipe("like");
+              void decide("like");
             }
             if (e.key === "ArrowLeft") {
               e.preventDefault();
-              app.swipe("skip");
+              void decide("skip");
             }
           }}
           style={
@@ -92,7 +114,7 @@ export function Deck({
             } as CSSProperties
           }
           onPointerDown={(e) => {
-            if ((e.target as HTMLElement).closest("button")) return;
+            if (swiping.current || (e.target as HTMLElement).closest("button") || e.button !== 0) return;
             pointer.current = { x: e.clientX, y: e.clientY };
             e.currentTarget.setPointerCapture(e.pointerId);
           }}
@@ -108,7 +130,7 @@ export function Deck({
               const dx = e.clientX - pointer.current.x;
               const dy = e.clientY - pointer.current.y;
               if (Math.abs(dx) > 85 && Math.abs(dx) > Math.abs(dy) * 1.5)
-                app.swipe(dx > 0 ? "like" : "skip");
+                void decide(dx > 0 ? "like" : "skip");
             }
             pointer.current = null;
             setDrag(0);
@@ -157,56 +179,28 @@ export function Deck({
           </div>
         </article>
       </div>
+      <div className="deck-secondary-actions" aria-label="Card tools">
+        <button className="round-action undo-action" onClick={app.goBack}
+          disabled={!index || leaving} aria-label="Undo last swipe" title="Undo last swipe">
+          <RotateCcw size={20} />
+        </button>
+        <span>Swipe left to skip · right to like</span>
+        <button className={`round-action save-action ${app.saved.includes(dish.id) ? "is-saved" : ""}`}
+          onClick={() => app.toggleSave(dish.id)} disabled={leaving}
+          aria-label={app.saved.includes(dish.id) ? "Remove bookmark" : "Bookmark for later"}
+          title="Save for later" aria-pressed={app.saved.includes(dish.id)}>
+          <Bookmark size={20} fill={app.saved.includes(dish.id) ? "currentColor" : "none"} />
+        </button>
+      </div>
       <div className="swipe-actions">
-        <div>
-          <button
-            className="round-action undo-action"
-            onClick={app.goBack}
-            disabled={!index}
-            aria-label="Undo last swipe"
-          >
-            <RotateCcw size={23} />
-          </button>
-          <span>Undo</span>
-        </div>
-        <div>
-          <button
-            className="round-action skip-action"
-            onClick={() => app.swipe("skip")}
-            aria-label="Skip dish"
-          >
-            <X size={31} />
-          </button>
-          <span>Not today</span>
-        </div>
-        <div>
-          <button
-            className={`round-action save-action ${app.saved.includes(dish.id) ? "is-saved" : ""}`}
-            onClick={() => app.toggleSave(dish.id)}
-            aria-label={
-              app.saved.includes(dish.id)
-                ? "Remove bookmark"
-                : "Bookmark for later"
-            }
-            aria-pressed={app.saved.includes(dish.id)}
-          >
-            <Bookmark
-              size={24}
-              fill={app.saved.includes(dish.id) ? "currentColor" : "none"}
-            />
-          </button>
-          <span>Save for later</span>
-        </div>
-        <div>
-          <button
-            className="round-action like-action"
-            onClick={() => app.swipe("like")}
-            aria-label="Like dish"
-          >
-            <Heart size={31} />
-          </button>
-          <span>Yes, please</span>
-        </div>
+        <button className="primary-swipe skip-action" onClick={() => void decide("skip")}
+          disabled={leaving} aria-label="Skip dish">
+          <X size={27} /><span>Not today</span>
+        </button>
+        <button className="primary-swipe like-action" onClick={() => void decide("like")}
+          disabled={leaving} aria-label="Like dish">
+          <Heart size={27} /><span>Yes, please</span>
+        </button>
       </div>
       <p className="deck-hint">
         A heart means “maybe for today.” An order is always your choice.

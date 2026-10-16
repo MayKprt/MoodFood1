@@ -7,3 +7,10 @@ out/
 playwright-report/
 test-results/
 .data/
+
+# Local recovery archives, release review files, and deployment metadata
+backups/
+.DS_Store
+.vercel/
+LOCAL_SOURCE_SNAPSHOT.json
+RELEASE_REVIEW.md

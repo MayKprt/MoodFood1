@@ -1,0 +1,14 @@
+.git
+.next
+node_modules
+backups
+.data
+.vercel
+.DS_Store
+.env*
+!.env.example
+*.tsbuildinfo
+playwright-report
+test-results
+LOCAL_SOURCE_SNAPSHOT.json
+RELEASE_REVIEW.md

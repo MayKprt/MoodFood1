@@ -1,5 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { demoOrderDirectory } from "./demo";
 import { randomUUID, createHash } from "node:crypto";
 import { Address, Cart, Order, Preferences } from "../domain";
 import { dishById } from "../data";
@@ -11,11 +12,7 @@ type Store = {
   keys: Record<string, { id: string; fingerprint: string }>;
 };
 let queue: Promise<unknown> = Promise.resolve();
-const filePath = () =>
-  path.join(
-    process.env.MOODFOOD_DATA_DIR || path.join(process.cwd(), ".data"),
-    "orders.json",
-  );
+const filePath = () => path.join(demoOrderDirectory(), "orders.json");
 async function read(): Promise<Store> {
   try {
     return JSON.parse(await fs.readFile(filePath(), "utf8"));

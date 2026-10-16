@@ -1,4 +1,5 @@
 import "server-only";
+import { publicDemo } from "./demo";
 import { cookies } from "next/headers";
 import { randomBytes } from "node:crypto";
 export type Principal = {
@@ -7,6 +8,7 @@ export type Principal = {
   email?: string;
 };
 export function authConfig() {
+  if (publicDemo()) return null;
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_ANON_KEY;
   return url && key ? { url, key } : null;
@@ -33,7 +35,8 @@ export async function principal(): Promise<Principal> {
     jar.set("mf_guest", id, {
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.DEPLOYMENT_HTTPS === "true",
+      secure:
+        process.env.VERCEL === "1" || process.env.DEPLOYMENT_HTTPS === "true",
       maxAge: 60 * 60 * 24 * 365,
       path: "/",
     });

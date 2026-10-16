@@ -1,4 +1,5 @@
 import "server-only";
+import { publicDemo } from "./demo";
 import { z } from "zod";
 import { parseIntent } from "../recommendations";
 const schema = z.object({
@@ -12,7 +13,7 @@ const schema = z.object({
 });
 export async function interpret(text: string) {
   const fallback = parseIntent(text);
-  if (!process.env.AI_API_KEY)
+  if (publicDemo() || !process.env.AI_API_KEY)
     return { intent: fallback, source: "rules" as const };
   try {
     const result = await fetch("https://api.openai.com/v1/chat/completions", {

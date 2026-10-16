@@ -3898,3 +3898,54 @@ textarea {
 .promise-note {
   color: #79633b;
 }
+
+/* Food discovery: clear primary decisions, independent card tools. */
+.deck-secondary-actions {
+  max-width: 425px;
+  margin: 14px auto 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.deck-secondary-actions > span { font-size: 11px; color: var(--muted); text-align: center; }
+.deck-secondary-actions .round-action { width: 44px; height: 44px; flex-shrink: 0; }
+.deck-page .swipe-actions { max-width: 425px; gap: 14px; margin-top: 12px; }
+.primary-swipe {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: auto; height: 68px; border-radius: 24px; font-size: 15px; font-weight: 600;
+  border: 1px solid transparent;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+.primary-swipe.skip-action { background: #fcece6; color: #b74b38; border-color: #f0d2c7; }
+.primary-swipe.like-action { background: var(--orange); color: white; box-shadow: 0 7px 18px #cc4c2b28; }
+.primary-swipe:hover:not(:disabled) { transform: translateY(-2px); }
+.primary-swipe:active:not(:disabled) { transform: scale(.96); }
+.swipe-card { cursor: grab; transition: transform 250ms cubic-bezier(.2,.8,.3,1); }
+.swipe-card.is-dragging { cursor: grabbing; transition: none; }
+.swipe-photo img { pointer-events: none; user-select: none; }
+.deck-page { overflow: clip; }
+@media (max-width: 600px) {
+  .deck-page { padding: 8px 0 12px; }
+  .deck-page .flow-heading { min-height: 28px; }
+  .deck-title { margin: 4px 0 8px; }
+  .deck-title h1 { font-size: 25px; max-width: 320px; margin-bottom: 5px; }
+  .deck-title p { font-size: 11px; }
+  .deck-progress { margin-bottom: 10px; }
+  .deck-page .swipe-photo { height: clamp(170px, 26dvh, 225px); }
+  .deck-page .swipe-content { padding: 12px 14px 8px; }
+  .deck-page .swipe-title h2 { font-size: 23px; margin-bottom: 6px; }
+  .deck-page .swipe-title > strong { font-size: 17px; }
+  .deck-page .swipe-content > p { font-size: 12px; line-height: 1.4; margin-bottom: 8px; }
+  .deck-page .tag-row > span { font-size: 9px; padding: 3px 7px; }
+  .deck-page .swipe-info { margin-top: 8px; padding-top: 3px; gap: 2px; }
+  .deck-page .swipe-info > span { font-size: 9px; }
+  .deck-page .swipe-info > button { min-height: 44px; font-size: 10px; }
+  .deck-secondary-actions { margin-top: 8px; }
+  .deck-page .swipe-actions { margin-top: 8px; gap: 12px; }
+  .primary-swipe { height: 62px; border-radius: 22px; font-size: 14px; }
+  .deck-page .deck-hint { margin-top: 9px; font-size: 10px; line-height: 1.4; max-width: 320px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .swipe-card, .primary-swipe { transition: none; }
+}
