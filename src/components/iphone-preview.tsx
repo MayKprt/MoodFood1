@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "@/app/iphone-test/iphone-test.module.css";
 
-export default function IPhonePreview({ experimental = false }: { experimental?: boolean }) {
+export default function IPhonePreview() {
   const stage = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
@@ -19,14 +19,6 @@ export default function IPhonePreview({ experimental = false }: { experimental?:
 
   return (
     <main className={styles.preview}>
-      <header className={styles.header}>
-        <p className={styles.eyebrow}>{experimental ? "LOCAL EXPERIMENT" : "MOODFOOD"}</p>
-        <h1>MoodFood, pocket-sized.</h1>
-        <p>Your existing Customer app · 390 × 844 viewport</p>
-        <a href="/customer" target="_blank" rel="noopener noreferrer">
-          Open Full App <span aria-hidden="true">↗</span>
-        </a>
-      </header>
       <div ref={stage} className={styles.stage} style={{ height: 912 * scale }}>
         <div className={styles.phone} style={{ transform: `scale(${scale})` }}>
           <div className={styles.volume} aria-hidden="true" />
@@ -67,7 +59,6 @@ export default function IPhonePreview({ experimental = false }: { experimental?:
           </div>
         </div>
       </div>
-      <p className={styles.note}>Demo ordering. Use fictional details when testing.</p>
     </main>
   );
 }

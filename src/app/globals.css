@@ -402,6 +402,7 @@ textarea {
   transform: rotate(15deg);
 }
 .hero-copy > p {
+  text-align: center;
   color: var(--muted);
   font-size: 15px;
   margin: 27px 0 26px;
@@ -454,6 +455,8 @@ textarea {
 }
 .hero-footnote {
   display: flex;
+  justify-content: center;
+  text-align: center;
   align-items: center;
   gap: 10px;
   margin-top: 22px;
@@ -998,7 +1001,7 @@ textarea {
 .site-footer {
   border-top: 1px solid var(--line);
   max-width: 1204px;
-  padding: 29px 24px;
+  padding: 16px 24px;
   margin: auto;
   display: flex;
   align-items: center;
@@ -3191,8 +3194,8 @@ textarea {
     display: none;
   }
   .site-footer {
-    padding: 23px 20px 100px;
-    gap: 12px;
+    padding: 12px 20px 78px;
+    gap: 6px;
     flex-wrap: wrap;
     justify-content: space-between;
   }
@@ -3207,7 +3210,7 @@ textarea {
     width: 100%;
     font-size: 8px;
     text-align: center;
-    margin-top: 5px;
+    margin-top: 0;
   }
   .site-footer > button {
     font-size: 9px;

@@ -3,17 +3,28 @@ import { test, expect } from "@playwright/test";
 test("responsive homepage uses the real Customer app without recursive framing", async ({ page, isMobile }) => {
   await page.goto("/");
   if (isMobile) {
-    await expect(page.getByRole("button", { name: "Just feed me", exact: true })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Feed Me", exact: true })).toBeEnabled();
     await expect(page.locator("iframe")).toHaveCount(0);
   } else {
     const iframe = page.locator("iframe");
     await expect(iframe).toHaveAttribute("src", "/customer");
     await expect(iframe).toHaveAttribute("width", "390");
     await expect(iframe).toHaveAttribute("height", "844");
-    await expect(page.getByRole("link", { name: "Open Full App" })).toHaveAttribute("href", "/customer");
+    await expect(page.getByRole("heading")).toHaveCount(0);
+    for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720 }, { width: 1024, height: 600 }]) {
+      await page.setViewportSize(viewport);
+      await expect.poll(async () => {
+        const bounds = await iframe.evaluate((element) => {
+          const phone = element.parentElement!.parentElement!.getBoundingClientRect();
+          return { top: phone.top, bottom: phone.bottom, height: phone.height };
+        });
+        return bounds.top >= 0 && bounds.bottom <= viewport.height && Math.abs(bounds.height / viewport.height - 0.88) < 0.015;
+      }).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true);
+    }
     const app = page.frameLocator("iframe");
     await expect(app.locator("iframe")).toHaveCount(0);
-    await app.getByRole("button", { name: "Just feed me", exact: true }).click();
+    await app.getByRole("button", { name: "Feed Me", exact: true }).click();
     await expect(app.getByText("1 of 7", { exact: true })).toBeVisible();
     await app.getByRole("button", { name: "Like dish", exact: true }).click();
     await expect(app.getByText("2 of 7", { exact: true })).toBeVisible();

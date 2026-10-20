@@ -1,13 +1,11 @@
 "use client";
 import {
   ArrowRight,
-  ArrowUpRight,
   Sparkles,
   Send,
   Clock3,
   Leaf,
   Heart,
-  Shuffle,
 } from "lucide-react";
 import { dishes, moods, cravings } from "@/lib/data";
 import { eligible, scoreDish, parseIntent } from "@/lib/recommendations";
@@ -72,9 +70,7 @@ export function Discover({
             onClick={() => void app.startDeck()}
             disabled={!app.ready || app.busy}
           >
-            <Shuffle size={19} />
-            {app.busy ? "Finding your food…" : "Just feed me"}
-            <ArrowUpRight size={21} />
+            {app.busy ? "Finding your food…" : "Feed Me"}
           </button>
           <div className="hero-footnote">
             <span className="mini-avatars">
@@ -238,7 +234,7 @@ export function Discover({
             onClick={() => void app.startDeck()}
             disabled={!app.ready || app.busy}
           >
-            Find your match <ArrowUpRight size={16} />
+            Find your match <ArrowRight size={16} />
           </button>
         </SectionHeading>
         <div className="dish-grid">

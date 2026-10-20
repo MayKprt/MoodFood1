@@ -7,9 +7,9 @@ test("complete discovery, undo, bookmark, Face-Off, and demo order journey", asy
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/customer");
   await expect(
-    page.getByRole("button", { name: "Just feed me", exact: true }),
+    page.getByRole("button", { name: "Feed Me", exact: true }),
   ).toBeEnabled();
-  await page.getByRole("button", { name: "Just feed me", exact: true }).click();
+  await page.getByRole("button", { name: "Feed Me", exact: true }).click();
   await expect(page.getByText("1 of 7", { exact: true })).toBeVisible();
   const firstName = await page.locator(".swipe-title h2").innerText();
   await page
@@ -91,7 +91,7 @@ test("keyboard dialog behavior, no horizontal overflow, and accessible discover"
 }) => {
   await page.goto("/customer");
   await expect(
-    page.getByRole("button", { name: "Just feed me", exact: true }),
+    page.getByRole("button", { name: "Feed Me", exact: true }),
   ).toBeEnabled();
   expect(
     await page.evaluate(
@@ -124,7 +124,7 @@ test("guest sessions cannot see each other’s orders and cannot spoof ownership
 }) => {
   await page.goto("/customer");
   await expect(
-    page.getByRole("button", { name: "Just feed me", exact: true }),
+    page.getByRole("button", { name: "Feed Me", exact: true }),
   ).toBeEnabled();
   const one = await page.request.get("/api/session");
   const first = (await one.json()).user;
