@@ -5,7 +5,7 @@ test("complete discovery, undo, bookmark, Face-Off, and demo order journey", asy
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/");
+  await page.goto("/customer");
   await expect(
     page.getByRole("button", { name: "Just feed me", exact: true }),
   ).toBeEnabled();
@@ -89,7 +89,7 @@ test("complete discovery, undo, bookmark, Face-Off, and demo order journey", asy
 test("keyboard dialog behavior, no horizontal overflow, and accessible discover", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/customer");
   await expect(
     page.getByRole("button", { name: "Just feed me", exact: true }),
   ).toBeEnabled();
@@ -122,7 +122,7 @@ test("guest sessions cannot see each other’s orders and cannot spoof ownership
   page,
   browser,
 }) => {
-  await page.goto("/");
+  await page.goto("/customer");
   await expect(
     page.getByRole("button", { name: "Just feed me", exact: true }),
   ).toBeEnabled();

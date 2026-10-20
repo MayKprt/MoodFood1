@@ -9,7 +9,11 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:3000",
     trace: "retain-on-failure",
-    launchOptions: {
+    launchOptions: process.platform === "darwin" ? {
+      ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+        ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
+        : { channel: "chrome" }),
+    } : {
       executablePath:
         process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || "/tmp/chromium",
       args: chromium.args.filter(
@@ -38,7 +42,7 @@ export default defineConfig({
   ],
   globalSetup: "./tests/e2e/setup.ts",
   webServer: {
-    command: "npm run dev",
+    command: `"${process.execPath}" node_modules/next/dist/bin/next dev --hostname 0.0.0.0 --port 3000`,
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
   },
