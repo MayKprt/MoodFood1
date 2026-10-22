@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   acceptOrder,
+  advanceOrder,
+  reopenOrder,
   importMenu,
   initialState,
   isAvailable,
@@ -9,6 +11,43 @@ import {
 } from "../src/app/merchant/merchant-data";
 
 const state = () => structuredClone(initialState);
+describe("reopening local Merchant orders", () => {
+  it("records completion status, restores it after persistence, and never duplicates an order", () => {
+    const original = state();
+    const ready = original.orders.find((order) => order.status === "Ready")!;
+    const completed = advanceOrder(original, ready.id);
+    expect(completed.orders.find((order) => order.id === ready.id)).toEqual({ ...ready, status: "Completed", previousActiveStatus: "Ready" });
+    const restored = restoreState(JSON.stringify(completed));
+    const reopened = reopenOrder(restored, ready.id);
+    expect(reopened.orders.find((order) => order.id === ready.id)).toEqual({ ...ready, previousActiveStatus: "Ready" });
+    expect(reopened.menu).toBe(restored.menu);
+    expect(reopened.settings).toBe(restored.settings);
+    expect(reopened.orders).toHaveLength(original.orders.length);
+    expect(reopenOrder(reopened, ready.id)).toEqual(reopened);
+    expect(advanceOrder(reopened, ready.id).orders.find((order) => order.id === ready.id)?.status).toBe("Completed");
+    expect(original.orders.find((order) => order.id === ready.id)).toEqual(ready);
+  });
+  it("restores a recorded Preparing status and falls back to Ready for legacy completed orders", () => {
+    for (const previousActiveStatus of ["Preparing", undefined] as const) {
+      const original = state();
+      original.orders[0] = { ...original.orders[0], status: "Completed", previousActiveStatus };
+      const reopened = reopenOrder(original, original.orders[0].id);
+      expect(reopened.orders[0]).toEqual({ ...original.orders[0], status: previousActiveStatus ?? "Ready" });
+    }
+  });
+  it("does not reopen cancelled or active orders, or change stock, money or other orders", () => {
+    const original = state();
+    original.orders[0].status = "Cancelled";
+    for (const order of original.orders) expect(reopenOrder(original, order.id)).toEqual(original);
+    expect(reopenOrder(original, "missing")).toEqual(original);
+    const completed = advanceOrder(original, original.orders.find((order) => order.status === "Ready")!.id);
+    const target = completed.orders.find((order) => order.status === "Completed")!;
+    const reopened = reopenOrder(completed, target.id);
+    expect(reopened.orders.filter((order) => order.id !== target.id)).toEqual(completed.orders.filter((order) => order.id !== target.id));
+    expect(reopened.orders.find((order) => order.id === target.id)?.total).toBe(target.total);
+    expect(reopened.menu).toBe(completed.menu);
+  });
+});
 describe("merchant preview compatibility", () => {
   it("restores the original preview without losing dishes, prices, orders or paused status", () => {
     const restored = restoreState(

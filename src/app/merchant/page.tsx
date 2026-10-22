@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Check,
@@ -15,9 +15,12 @@ import {
   Sparkles,
   UtensilsCrossed,
   BarChart3,
+  X,
 } from "lucide-react";
 import {
   acceptOrder,
+  advanceOrder,
+  reopenOrder,
   initialState,
   isAvailable,
   restoreState,
@@ -44,6 +47,8 @@ const navigation = [
 ];
 export default function Merchant() {
   const [tab, setTab] = useState("Home");
+  const assistantReturnTab = useRef("Home");
+  const assistantTrigger = useRef<HTMLButtonElement>(null);
   const [state, setState] = useState<MerchantState>(initialState);
   const [loaded, setLoaded] = useState(false);
   const [notice, setNotice] = useState("");
@@ -91,8 +96,13 @@ export default function Merchant() {
   const unavailable = state.menu.filter((d) => !isAvailable(d)).length;
   const mode = state.settings.mode ?? (state.settings.open ? "Open" : "Paused");
   function navigate(name: string) {
+    if (name === "AI Help" && tab !== "AI Help") assistantReturnTab.current = tab;
     setTab(name);
     setStatusOpen(false);
+  }
+  function closeAssistant() {
+    navigate(assistantReturnTab.current);
+    assistantTrigger.current?.focus();
   }
   function orderAction(id: string) {
     const order = state.orders.find((o) => o.id === id);
@@ -106,14 +116,7 @@ export default function Merchant() {
       setState(result.state);
       setNotice(`Order #${id} accepted.`);
     } else {
-      setState((previous) => ({
-        ...previous,
-        orders: previous.orders.map((o) =>
-          o.id === id
-            ? { ...o, status: o.status === "Preparing" ? "Ready" : "Completed" }
-            : o,
-        ),
-      }));
+      setState((previous) => advanceOrder(previous, id));
       setNotice(
         order.status === "Preparing"
           ? `Order #${id} is ready.`
@@ -291,14 +294,14 @@ export default function Merchant() {
                 </div>
               )}
             </div>
-          ) : tab !== "AI Help" ? (
+          ) : tab === "AI Help" ? (
             <button
-              className={s.headerHelp}
-              onClick={() => navigate("AI Help")}
-              aria-label="Ask MoodFood"
+              className={s.assistantClose}
+              onClick={closeAssistant}
+              aria-label="Close MoodAI"
             >
-              <Sparkles size={20} />
-              <span>Ask MoodFood</span>
+              <X size={20} aria-hidden="true" />
+              <span>Close</span>
             </button>
           ) : null}
         </header>
@@ -434,6 +437,11 @@ export default function Merchant() {
                 filter={filter}
                 setFilter={setFilter}
                 onAction={orderAction}
+                onReopen={(id) => {
+                  setState((previous) => reopenOrder(previous, id));
+                  setFilter("In Progress");
+                  setNotice(`Order #${id} reopened in In Progress.`);
+                }}
                 onReject={(id) => {
                   setState((previous) => ({
                     ...previous,
@@ -477,7 +485,7 @@ export default function Merchant() {
           <span>Good food. A smoother day.</span>
         </footer>
       </main>
-      <button className={s.assistantButton} onClick={() => navigate("AI Help")}>
+      <button ref={assistantTrigger} className={s.assistantButton} aria-expanded={tab === "AI Help"} onClick={() => tab === "AI Help" ? closeAssistant() : navigate("AI Help")}>
         <Sparkles size={19} /> Ask MoodAI
       </button>
       <div

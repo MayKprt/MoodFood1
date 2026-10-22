@@ -1,0 +1,54 @@
+.preview {
+  height: 100svh;
+  padding: 0 32px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: #eeefed;
+}
+
+.stage {
+  position: relative;
+  width: min(1224px, 100%, calc(86svh * 1224 / 864));
+}
+
+.tablet {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1224px;
+  height: 864px;
+  padding: 21px;
+  border: 1px solid #535658;
+  border-radius: 46px;
+  background: #171819;
+  box-shadow: inset 0 0 0 3px #343638, inset 0 0 0 5px #0b0b0c,
+    0 28px 65px -20px #18211f66, 0 8px 18px -8px #18211f55;
+  transform-origin: top left;
+}
+
+.screen {
+  position: relative;
+  width: 1180px;
+  height: 820px;
+  overflow: hidden;
+  border-radius: 25px;
+  background: #faf8f3;
+}
+
+.app { display: block; width: 1180px; height: 820px; border: 0; }
+.camera {
+  position: absolute;
+  top: 7px;
+  left: calc(50% - 4px);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0a121b;
+  box-shadow: inset 0 0 2px #3b536c, 0 0 0 2px #101112;
+}
+.power { position: absolute; right: -3px; top: 45px; width: 3px; height: 40px; border-radius: 3px; background: #343638; }
+.volume { position: absolute; top: -3px; right: 80px; width: 43px; height: 3px; border-radius: 3px; background: #343638; box-shadow: -53px 0 #343638; }
+.homeIndicator { position: absolute; bottom: 6px; left: calc(50% - 70px); width: 140px; height: 5px; border-radius: 5px; background: #252925; opacity: .55; pointer-events: none; }
+.compact { height: 100svh; overflow: hidden; background: #faf8f3; }
+.fullScreenApp { display: block; width: 100%; height: 100%; border: 0; }

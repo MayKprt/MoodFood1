@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
   Check,
+  ChevronDown,
   ChevronRight,
   Clock3,
   PackageCheck,
@@ -30,10 +31,12 @@ export function Modal({
   title,
   children,
   onClose,
+  fallbackFocus,
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
+  fallbackFocus?: () => void;
 }) {
   const returnFocus = useRef<HTMLElement | null>(
     typeof document === "undefined"
@@ -55,6 +58,7 @@ export function Modal({
           onCloseAutoFocus={(event) => {
             event.preventDefault();
             if (returnFocus.current?.isConnected) returnFocus.current.focus();
+            else fallbackFocus?.();
           }}
         >
           <div className={s.modalHeading}>
@@ -88,6 +92,7 @@ export function OrderList({
   setFilter,
   onAction,
   onReject,
+  onReopen,
 }: {
   orders: Order[];
   menu: MenuDish[];
@@ -95,8 +100,12 @@ export function OrderList({
   setFilter: (value: string) => void;
   onAction: (id: string) => void;
   onReject: (id: string) => void;
+  onReopen: (id: string) => void;
 }) {
   const [reject, setReject] = useState<string | null>(null);
+  const [reopening, setReopening] = useState<string | null>(null);
+  const categoryTabs = useRef<HTMLDivElement>(null);
+  const reopenTarget = orders.find((order) => order.id === reopening && order.status === "Completed");
   const categories = ["Needs Attention", "In Progress", "Completed"];
   const matches = (o: Order, category: string) =>
     category === "Needs Attention"
@@ -107,7 +116,7 @@ export function OrderList({
   const visible = orders.filter((o) => matches(o, filter));
   return (
     <>
-      <div className={s.tabs} role="group" aria-label="Order categories">
+      <div ref={categoryTabs} className={s.tabs} role="group" aria-label="Order categories">
         {categories.map((category) => (
           <button
             key={category}
@@ -150,6 +159,13 @@ export function OrderList({
                       : `${order.status === "Preparing" ? "Preparing" : "Estimated prep"} · ${order.minutes} min`}
               </p>
               {problem && <div className={s.problem}>{problem}</div>}
+              {order.status === "Completed" && (
+                <div className={s.orderButtons}>
+                  <button className={s.secondary} onClick={() => setReopening(order.id)}>
+                    Reopen Order
+                  </button>
+                </div>
+              )}
               {!["Completed", "Cancelled"].includes(order.status) && (
                 <div className={s.orderButtons}>
                   <button
@@ -201,6 +217,23 @@ export function OrderList({
           </div>
         )}
       </div>
+      {reopenTarget && (
+        <Modal
+          title={`Reopen order #${reopenTarget.id}?`}
+          onClose={() => setReopening(null)}
+          fallbackFocus={() => categoryTabs.current?.querySelector<HTMLElement>('[aria-pressed="true"]')?.focus()}
+        >
+          <p>Move this order back to In Progress?</p>
+          <p>It will return to {reopenTarget.previousActiveStatus ?? "Ready"}. Only this demo order is updated.</p>
+          <div className={s.dialogActions}>
+            <button className={s.secondary} onClick={() => setReopening(null)}>Cancel</button>
+            <button className={s.primary} onClick={() => {
+              onReopen(reopenTarget.id);
+              setReopening(null);
+            }}>Reopen Order</button>
+          </div>
+        </Modal>
+      )}
       {reject && (
         <Modal
           title={`Cancel order #${reject}?`}
@@ -255,7 +288,7 @@ export function MenuPanel({
       </div>
       <div className={s.menuGrid}>
         {menu.map((dish) => (
-          <article key={dish.id} className={s.dishCard}>
+          <article key={dish.id} className={`${s.dishCard} ${!isAvailable(dish) ? s.unavailableDish : ""}`}>
             <DishPhoto dish={dish} />
             <div className={s.dishBody}>
               <div className={s.row}>
@@ -658,9 +691,10 @@ export function SettingsPanel({
             </label>
           ))}
         </div>
-        <details className={s.advanced}>
+        <details className={`${s.advanced} ${s.soundControls}`}>
           <summary>
-            <Volume2 size={19} /> Sound & volume
+            <Volume2 size={19} aria-hidden="true" /> Sound & volume
+            <ChevronDown size={18} className={s.soundChevron} aria-hidden="true" />
           </summary>
           <label className={s.checkLabel}>
             <input
@@ -865,10 +899,6 @@ export function HelpPanel({
           <Send size={21} />
         </button>
       </form>
-      <div className={s.helpLinks}>
-        <button onClick={() => onNavigate("Menu")}>Open Menu</button>
-        <button onClick={() => onNavigate("Orders")}>Open Orders</button>
-      </div>
       <p className={s.demoNote}>
         Preview help · Guided answers for menu and order tasks.
       </p>

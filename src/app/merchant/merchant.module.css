@@ -1,3 +1,29 @@
+/* Merchant-only layout tokens, shared with portaled Merchant dialogs.
+   Breakpoints: mobile <=700px; wide menu >=1150px; compact landscape >=901px. */
+.shell,
+.modal {
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --page-gutter: var(--space-5);
+  --page-top: var(--space-4);
+  --content-width: 1080px;
+  --section-gap: var(--space-4);
+  --card-padding: var(--space-3);
+  --field-width: 560px;
+  --conversation-width: 640px;
+  --control-height: 48px;
+  --action-width: 256px;
+  --quantity-width: 160px;
+  --time-width: 176px;
+  --quick-action-columns: 2;
+  --settings-columns: 1;
+}
+
 .shell {
   --coral: #dc5536;
   --coral-dark: #ba4027;
@@ -144,17 +170,19 @@
 }
 .main {
   width: 100%;
-  max-width: 1080px;
+  max-width: var(--content-width);
   min-width: 0;
-  padding: 43px 32px 24px;
+  padding: var(--page-top) var(--page-gutter) 100px;
   margin: 0 auto;
 }
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 32px;
+
+  gap: var(--space-2);
+
+  margin-bottom: var(--section-gap);
   min-height: 83px;
 }
 .header h1 {
@@ -239,7 +267,8 @@
 }
 .homeContent {
   display: grid;
-  gap: 31px;
+
+  gap: var(--section-gap);
 }
 .attentionCard {
   display: flex;
@@ -247,7 +276,8 @@
   align-items: flex-start;
   border-radius: 20px;
   background: #fff2d9;
-  padding: 28px;
+
+  padding: var(--card-padding);
   box-shadow: 0 2px 8px #8c691009;
 }
 .attentionIcon {
@@ -304,7 +334,7 @@
   gap: 12px;
   border-radius: 11px;
   padding: 13px 20px;
-  min-height: 49px;
+  min-height: var(--control-height);
   font-size: 14px;
   font-weight: 600;
   line-height: 1.4;
@@ -333,13 +363,14 @@
 .sectionTitle {
   font-weight: 600;
   font-size: 18px;
-  margin: 0 0 17px;
+
+  margin: 0 0 var(--space-2);
   letter-spacing: -0.2px;
 }
 .actionGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(var(--quick-action-columns), minmax(0, 1fr));
+  gap: var(--space-2);
 }
 .actionTile {
   border-radius: 17px;
@@ -347,7 +378,7 @@
   min-height: 151px;
   text-align: left;
   box-shadow: var(--shadow);
-  padding: 23px 20px;
+  padding: var(--card-padding);
   display: flex;
   flex-wrap: wrap;
   align-content: center;
@@ -408,8 +439,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 18px;
+
+  gap: var(--space-2);
+
+  margin-bottom: var(--space-2);
 }
 .sectionRow .sectionTitle {
   margin: 0;
@@ -535,12 +568,14 @@
 }
 .orderList {
   display: grid;
-  gap: 20px;
+
+  gap: var(--section-gap);
 }
 .orderCard {
   background: white;
   border-radius: 18px;
-  padding: 25px;
+
+  padding: var(--card-padding);
   box-shadow: var(--shadow);
 }
 .row {
@@ -634,7 +669,8 @@
 }
 .inlineActions {
   display: flex;
-  gap: 10px;
+
+  gap: var(--space-2);
 }
 .inlineActions button {
   font-size: 12px;
@@ -644,7 +680,8 @@
 .menuGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 21px 17px;
+
+  gap: var(--section-gap);
 }
 .dishCard {
   background: white;
@@ -660,8 +697,24 @@
   width: 100%;
   background-repeat: no-repeat;
 }
+.unavailableDish .foodPhoto {
+  opacity: 0.5;
+}
+.assistantClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 14px;
+  border: 1px solid #deded5;
+  border-radius: 24px;
+  background: #fffdf8;
+  color: #454e44;
+}
 .dishBody {
-  padding: 17px;
+  padding: var(--card-padding);
 }
 .dishBody h2 {
   font-size: 16px;
@@ -747,7 +800,7 @@
   width: min(530px, calc(100vw - 32px));
   max-height: calc(100dvh - 48px);
   overflow: auto;
-  padding: 28px;
+  padding: var(--card-padding);
   background: #fffdf9;
   color: #303731;
   border-radius: 20px;
@@ -780,8 +833,10 @@
 }
 .form {
   display: grid;
-  gap: 19px;
-  margin-top: 22px;
+
+  gap: var(--space-2);
+
+  margin-top: var(--space-3);
 }
 .form label,
 .fileInput {
@@ -797,11 +852,11 @@
 .askForm input,
 .fileInput input {
   width: 100%;
-  min-height: 48px;
+  min-height: var(--control-height);
   border: 1px solid #dcded3;
   border-radius: 9px;
   background: white;
-  padding: 11px 12px;
+  padding: 12px var(--space-2);
   color: #303731;
   font: inherit;
   min-width: 0;
@@ -810,10 +865,19 @@
   resize: vertical;
   min-height: 90px;
 }
+.form input:not([type="checkbox"]):not([type="range"]),
+.form select,
+.askForm input,
+.fileInput input {
+  height: var(--control-height);
+  padding-block: var(--space-1);
+}
 .formGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
+
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+  gap: var(--space-2);
 }
 .form .checkLabel,
 .checkLabel {
@@ -874,8 +938,10 @@
   display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 23px;
+
+  gap: var(--space-2);
+
+  margin-top: var(--space-3);
 }
 .dialogActions > button {
   flex: 1;
@@ -892,10 +958,11 @@
 }
 .settingsForm {
   display: grid;
-  gap: 22px;
+
+  gap: var(--section-gap);
 }
 .panel {
-  padding: 25px;
+  padding: var(--card-padding);
   background: white;
   border-radius: 18px;
   box-shadow: var(--shadow);
@@ -906,6 +973,47 @@
 }
 .notificationList {
   margin-top: 17px;
+}
+.soundControls {
+  border-top: 0;
+  interpolate-size: allow-keywords;
+}
+.soundControls > summary {
+  width: 100%;
+  gap: var(--space-1);
+}
+.soundControls > summary::after,
+.soundControls[open] > summary::after {
+  content: none;
+}
+.soundControls > summary::-webkit-details-marker {
+  display: none;
+}
+.soundChevron {
+  flex-shrink: 0;
+  transition: transform 180ms ease;
+}
+.soundControls[open] .soundChevron {
+  transform: rotate(180deg);
+}
+.soundControls::details-content {
+  block-size: 0;
+  opacity: 0;
+  overflow: clip;
+  transition: block-size 180ms ease, opacity 150ms ease, content-visibility 180ms allow-discrete;
+}
+.soundControls[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .soundChevron,
+  .soundControls::details-content {
+    transition: none;
+  }
+}
+.notificationList > .notificationRow:last-child {
+  border-bottom: 0;
 }
 .notificationRow {
   display: flex;
@@ -935,7 +1043,7 @@
   margin: 18px 0 0;
 }
 .helpPanel {
-  padding: 25px;
+  padding: var(--card-padding);
   background: white;
   border-radius: 20px;
   box-shadow: var(--shadow);
@@ -1112,9 +1220,6 @@
     width: 195px;
     padding-inline: 18px;
   }
-  .main {
-    padding: 45px 55px;
-  }
   .actionTile {
     min-height: 156px;
   }
@@ -1130,17 +1235,17 @@
 }
 @media (min-width: 901px) and (max-height: 850px) {
   .main {
-    padding: 25px 35px 15px;
+    --page-top: var(--space-3);
   }
   .header {
     min-height: 72px;
-    margin-bottom: 22px;
+    margin-bottom: var(--section-gap);
   }
   .homeContent {
-    gap: 20px;
+    gap: var(--section-gap);
   }
   .attentionCard {
-    padding: 21px 25px;
+    padding: var(--card-padding);
   }
   .attentionCopy p {
     margin: 0;
@@ -1161,8 +1266,8 @@
   }
   .actionTile {
     min-height: 104px;
-    padding: 18px;
-    gap: 11px;
+    padding: var(--card-padding);
+    gap: var(--space-2);
     flex-wrap: nowrap;
     align-items: center;
   }
@@ -1182,13 +1287,13 @@
     border-radius: 12px;
   }
   .sectionTitle {
-    margin-bottom: 12px;
+    margin-bottom: var(--space-2);
   }
   .overview {
     padding: 17px 0;
   }
   .sectionRow {
-    margin-bottom: 10px;
+    margin-bottom: var(--space-2);
   }
   .footer {
     margin-top: 15px;
@@ -1247,7 +1352,7 @@
     display: none;
   }
   .main {
-    padding: 28px 20px;
+    --page-top: var(--space-3);
   }
   .header h1 {
     font-size: 28px;
@@ -1260,7 +1365,7 @@
   }
   .header {
     gap: 10px;
-    margin-bottom: 26px;
+    margin-bottom: var(--section-gap);
   }
   .storeStatus {
     font-size: 12px;
@@ -1272,7 +1377,7 @@
     gap: 12px;
   }
   .actionTile {
-    padding: 17px;
+    padding: var(--card-padding);
     min-height: 152px;
   }
   .tileText strong {
@@ -1285,7 +1390,7 @@
     right: 13px;
   }
   .attentionCard {
-    padding: 22px;
+    padding: var(--card-padding);
     gap: 15px;
   }
   .attentionIcon {
@@ -1345,31 +1450,31 @@
     font-size: 14px;
   }
   .orderCard {
-    padding: 20px;
+    padding: var(--card-padding);
   }
   .orderCard .row {
     flex-wrap: wrap;
     gap: 6px;
   }
   .modal {
-    padding: 23px;
+    padding: var(--card-padding);
   }
   .formGrid {
-    gap: 10px;
+    gap: var(--space-2);
   }
   .helpPanel {
-    padding: 20px;
+    padding: var(--card-padding);
   }
 }
 @media (max-width: 430px) {
   .main {
-    padding-inline: 14px;
+    --page-gutter: var(--space-2);
   }
   .header {
     flex-wrap: wrap;
   }
   .actionTile {
-    padding: 14px;
+    padding: var(--card-padding);
   }
   .tileText strong {
     font-size: 13px;
@@ -1420,7 +1525,7 @@
   }
 }
 
-/* Keep the preferred dashboard; balance the three remaining quick actions. */
+/* Stack the last action only when the grid has two columns. */
 .actionGrid > .actionTile:last-child {
   grid-column: 1 / -1;
 }
@@ -1434,14 +1539,129 @@
   font-size: 14px;
   background: var(--coral);
   color: #fff;
-  box-shadow: 0 4px 10px #302d2914, 0 8px 24px #dc553629;
+  box-shadow:
+    0 4px 10px #302d2914,
+    0 8px 24px #dc553629;
 }
 .assistantButton:hover {
   background: var(--coral-dark);
 }
-.main {
-  padding-bottom: 100px;
-}
 .toast {
   bottom: 98px;
+}
+
+/* One outer grid on all Merchant screens; related fields share one column. */
+@media (min-width: 901px) {
+  .shell,
+  .modal {
+    --quick-action-columns: 3;
+    --settings-columns: 2;
+  }
+}
+@media (min-width: 701px) {
+  .orderButtons .primary {
+    flex: 0 1 var(--action-width);
+    max-width: 100%;
+  }
+  .dialogActions > button {
+    flex: 0 1 auto;
+    min-width: 128px;
+  }
+  .settingsForm .form {
+    width: 100%;
+    max-width: none;
+    grid-template-columns: repeat(var(--settings-columns), minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+  .notificationList,
+  .soundControls,
+  .volumeLabel {
+    width: 100%;
+    max-width: var(--field-width);
+  }
+  .form input[type="number"] {
+    max-width: var(--quantity-width);
+  }
+  .form input[type="time"] {
+    max-width: var(--time-width);
+  }
+  .helpPanel {
+    width: 100%;
+  }
+  .helpIntro,
+  .suggestions,
+  .askForm,
+  .messages,
+  .confirmCard {
+    width: 100%;
+    max-width: var(--conversation-width);
+    margin-inline: auto;
+  }
+}
+@media (min-width: 901px) {
+  .actionGrid > .actionTile:last-child {
+    grid-column: auto;
+  }
+  .actionTile {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto 1fr;
+    min-height: 176px;
+    align-items: start;
+    align-content: stretch;
+    gap: var(--space-2);
+  }
+  .tileIcon {
+    width: 48px;
+    height: 48px;
+  }
+  .tileText {
+    width: 100%;
+    grid-column: 1 / -1;
+  }
+  .tileText strong {
+    font-size: 16px;
+  }
+  .tileArrow {
+    position: static;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+  }
+  .attentionCard {
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .attentionCopy {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-1) var(--space-3);
+  }
+  .attentionCopy h2,
+  .attentionCopy p {
+    grid-column: 1;
+    margin: 0;
+  }
+  .attentionCopy > button {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: center;
+  }
+  .notificationList {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-3);
+    max-width: none;
+  }
+  .notificationRow:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+}
+@media (max-width: 700px) {
+  .shell,
+  .modal {
+    --page-gutter: var(--space-3);
+    --card-padding: var(--space-2);
+    --section-gap: var(--space-2);
+  }
 }

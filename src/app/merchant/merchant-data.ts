@@ -34,8 +34,32 @@ const orderSchema = z.object({
   time: z.string(),
   minutes: z.number().default(20),
   problem: z.string().default(""),
+  previousActiveStatus: z.enum(["Preparing", "Ready"]).optional(),
 });
 export type Order = z.infer<typeof orderSchema>;
+
+export function advanceOrder(state: MerchantState, id: string): MerchantState {
+  return {
+    ...state,
+    orders: state.orders.map((order) => {
+      if (order.id !== id) return order;
+      if (order.status === "Preparing") return { ...order, status: "Ready" };
+      if (order.status === "Ready") return { ...order, status: "Completed", previousActiveStatus: "Ready" };
+      return order;
+    }),
+  };
+}
+
+export function reopenOrder(state: MerchantState, id: string): MerchantState {
+  return {
+    ...state,
+    orders: state.orders.map((order) =>
+      order.id === id && order.status === "Completed"
+        ? { ...order, status: order.previousActiveStatus ?? "Ready" }
+        : order,
+    ),
+  };
+}
 const notificationSchema = z.object({
   orders: z.boolean().default(true),
   attention: z.boolean().default(true),
