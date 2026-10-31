@@ -115,7 +115,10 @@ test("Merchant controls use purpose-sized tablet widths and preserve mobile fit"
   await page.getByRole("button", { name: "Add a Dish", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   if (!isMobile) {
-    expect((await page.getByLabel("Price ($)", { exact: true }).boundingBox())!.width).toBeLessThanOrEqual(160);
+    const price = (await page.getByLabel("Price ($)", { exact: true }).boundingBox())!;
+    const category = (await page.getByLabel("Category", { exact: true }).boundingBox())!;
+    expect(price.width).toBeCloseTo(category.width, 0);
+    expect(category.x - price.x - price.width).toBeCloseTo(16, 0);
     expect((await page.getByRole("dialog").getByRole("combobox").boundingBox())!.width).toBeCloseTo((await page.getByLabel("Dish name", { exact: true }).boundingBox())!.width, 0);
   }
   await page.keyboard.press("Escape");

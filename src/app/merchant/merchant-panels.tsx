@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Clock3,
   PackageCheck,
+  Pencil,
   Plus,
   Send,
   Sparkles,
@@ -26,6 +27,10 @@ import {
   type Order,
 } from "./merchant-data";
 import s from "./merchant.module.css";
+import { suggestFood } from "./food-suggestions";
+import { DishPhotoUpload } from "./dish-photo-upload";
+import { FoodSuggestions } from "./food-suggestions-panel";
+import { POSSync, POSSettings, MenuInsights, OrderCommunication } from "./merchant-prototypes";
 
 export function Modal({
   title,
@@ -74,6 +79,8 @@ export function Modal({
   );
 }
 export function DishPhoto({ dish }: { dish: MenuDish }) {
+  if (dish.uploadedPhoto) return <img src={dish.uploadedPhoto} alt={dish.name} className={`${s.foodPhoto} ${s.uploadedDishPhoto}`} />;
+  if (dish.photoRemoved) return <div className={`${s.foodPhoto} ${s.noDishPhoto}`} role="img" aria-label={`${dish.name}: no photo`}>No photo</div>;
   return (
     <div
       role="img"
@@ -93,6 +100,8 @@ export function OrderList({
   onAction,
   onReject,
   onReopen,
+  onDelay,
+  onDemoOrder,
 }: {
   orders: Order[];
   menu: MenuDish[];
@@ -101,6 +110,8 @@ export function OrderList({
   onAction: (id: string) => void;
   onReject: (id: string) => void;
   onReopen: (id: string) => void;
+  onDelay: (id: string, minutes: number) => void;
+  onDemoOrder: () => void;
 }) {
   const [reject, setReject] = useState<string | null>(null);
   const [reopening, setReopening] = useState<string | null>(null);
@@ -135,68 +146,39 @@ export function OrderList({
           const problem = attention
             ? stockProblem(order, menu) || order.problem
             : "";
+          const inProgress = ["Preparing", "Ready"].includes(order.status);
+          const active = !["Completed", "Cancelled"].includes(order.status);
           return (
-            <article key={order.id} className={s.orderCard}>
-              <div className={s.row}>
+            <article key={order.id} className={`${s.orderCard} ${s.progressCard}`}>
+              <div className={s.progressInfo}>
                 <h2>Order #{order.id}</h2>
-                <span className={attention ? s.amberText : s.muted}>
-                  {order.status === "New" ? "New order" : order.status}
-                </span>
-              </div>
-              <div className={s.orderDishes}>
-                {order.dish.split(" · ").map((line, i) => (
-                  <p key={i}>{line}</p>
-                ))}
-              </div>
-              <p className={s.orderTime}>
-                <Clock3 size={17} />
-                {order.status === "Ready"
-                  ? "Ready for pickup"
-                  : order.status === "Completed"
-                    ? "Order completed"
-                    : order.status === "Cancelled"
-                      ? "Order cancelled"
-                      : `${order.status === "Preparing" ? "Preparing" : "Estimated prep"} · ${order.minutes} min`}
-              </p>
-              {problem && <div className={s.problem}>{problem}</div>}
-              {order.status === "Completed" && (
-                <div className={s.orderButtons}>
-                  <button className={s.secondary} onClick={() => setReopening(order.id)}>
-                    Reopen Order
-                  </button>
+                <div className={s.orderDishes}>
+                  {order.dish.split(" · ").map((line, index) => <p key={index}>{line}</p>)}
                 </div>
-              )}
-              {!["Completed", "Cancelled"].includes(order.status) && (
-                <div className={s.orderButtons}>
-                  <button
-                    className={s.primary}
-                    onClick={() => onAction(order.id)}
-                  >
-                    {attention
-                      ? problem
-                        ? "Confirm Available"
-                        : "Accept Order"
-                      : order.status === "Preparing"
-                        ? "Mark Ready"
-                        : "Complete Order"}
-                    <ChevronRight size={19} />
-                  </button>
-                  {attention && (
-                    <button
-                      className={s.secondary}
-                      onClick={() => setReject(order.id)}
-                    >
-                      Can’t Fulfill
-                    </button>
-                  )}
-                </div>
-              )}
-              <details className={s.details}>
+                <p className={s.progressCustomer}>{order.customer} · ${order.total.toFixed(2)}</p>
+                <p className={s.orderTime}>
+                  <Clock3 size={17} aria-hidden="true" />
+                  {order.status === "Ready" ? "Ready for pickup"
+                    : order.status === "Completed" ? "Order completed"
+                    : order.status === "Cancelled" ? "Order cancelled"
+                    : `${order.status === "Preparing" ? "Preparing" : "Estimated prep"} · ${order.minutes} min`}
+                </p>
+                {problem && <div className={s.problem}>{problem}</div>}
+              </div>
+              <div className={s.progressActions}>
+                <span className={attention ? s.amberText : s.muted}>{order.status === "New" ? "New order" : order.status}</span>
+                {active && <button className={s.primary} onClick={() => onAction(order.id)}>
+                  {attention ? problem ? "Confirm Available" : "Accept Order" : order.status === "Preparing" ? "Mark Ready" : "Complete Order"}
+                  <ChevronRight size={19} aria-hidden="true" />
+                </button>}
+                {attention && <button className={s.secondary} onClick={() => setReject(order.id)}>Decline Order</button>}
+                {inProgress && <OrderCommunication order={order} onDelay={onDelay} />}
+                {order.status === "Completed" && <button className={s.secondary} onClick={() => setReopening(order.id)}>Reopen Order</button>}
+              </div>
+              <details className={`${s.details} ${s.progressDelivery}`}>
                 <summary>Delivery Details</summary>
                 <p>Demo pickup · Delivery provider not connected.</p>
-                <p>
-                  {order.customer} · ${order.total.toFixed(2)}
-                </p>
+                {attention && <OrderCommunication order={order} onDelay={onDelay} />}
               </details>
             </article>
           );
@@ -214,6 +196,7 @@ export function OrderList({
                 ? "Your kitchen is in good shape."
                 : "Orders will appear here as you update them."}
             </p>
+            {filter === "Needs Attention" && <button type="button" className={s.secondary} onClick={onDemoOrder}>Add Demo Order</button>}
           </div>
         )}
       </div>
@@ -286,6 +269,7 @@ export function MenuPanel({
           </button>
         </div>
       </div>
+      <POSSync menu={menu} />
       <div className={s.menuGrid}>
         {menu.map((dish) => (
           <article key={dish.id} className={`${s.dishCard} ${!isAvailable(dish) ? s.unavailableDish : ""}`}>
@@ -312,7 +296,7 @@ export function MenuPanel({
                   aria-label={`Edit ${dish.name}`}
                   onClick={() => onEdit(dish)}
                 >
-                  Edit
+                  <Pencil size={16} aria-hidden="true" /> Edit
                 </button>
               </div>
             </div>
@@ -373,10 +357,11 @@ function MenuImport({
       {items.length > 0 && (
         <>
           <p>{items.length} dishes ready to add.</p>
-          <ul>
+          <ul className={s.importReview}>
             {items.map((item) => (
               <li key={item.id}>
-                {item.name} · ${item.price.toFixed(2)}
+                <strong>{item.name} · ${item.price.toFixed(2)}</strong>
+                <FoodSuggestions dish={item} onChange={updated => setItems(previous => previous.map(entry => entry.id === updated.id ? updated : entry))} />
               </li>
             ))}
           </ul>
@@ -399,20 +384,20 @@ export function DishEditor({
 }) {
   const [draft, setDraft] = useState<MenuDish>(
     () =>
-      dish ??
+      suggestFood(dish ??
       dishSchema.parse({
         id: crypto.randomUUID(),
         name: "",
         price: 10,
         category: "Bowls",
         available: true,
-      }),
+      })),
   );
   const [error, setError] = useState("");
   return (
     <Modal title={dish ? "Edit dish" : "Add a dish"} onClose={onClose}>
       <form
-        className={s.form}
+        className={`${s.form} ${s.dishEditor}`}
         onSubmit={(e) => {
           e.preventDefault();
           if (!draft.name.trim()) {
@@ -429,7 +414,7 @@ export function DishEditor({
             required
             value={draft.name}
             placeholder="e.g. Harvest bowl"
-            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+            onChange={(e) => setDraft(suggestFood({ ...draft, name: e.target.value }))}
           />
         </label>
         <div className={s.formGrid}>
@@ -456,11 +441,11 @@ export function DishEditor({
           </label>
         </div>
         <label>
-          Photo
+          Sample photo (optional)
           <select
             value={draft.photo}
             onChange={(e) =>
-              setDraft({ ...draft, photo: Number(e.target.value) })
+              setDraft({ ...draft, photo: Number(e.target.value), uploadedPhoto: "", photoRemoved: false })
             }
           >
             <option value={0}>Harvest bowl</option>
@@ -469,6 +454,7 @@ export function DishEditor({
             <option value={3}>Avocado toast</option>
           </select>
         </label>
+        <DishPhotoUpload photo={draft.uploadedPhoto} onChange={photo => setDraft(previous => ({...previous, uploadedPhoto: photo, photoRemoved: !photo}))} />
         <label className={s.checkLabel}>
           <input
             type="checkbox"
@@ -479,9 +465,10 @@ export function DishEditor({
           />{" "}
           Available to order
         </label>
-        <details className={s.advanced}>
+        <details className={`${s.advanced} ${s.dishOptions}`}>
           <summary>
             More options <span>Stock, schedule & extras</span>
+            <ChevronDown size={18} aria-hidden="true" className={s.dishOptionsChevron} />
           </summary>
           <label className={s.checkLabel}>
             <input
@@ -559,7 +546,7 @@ export function DishEditor({
               placeholder="Ingredients, allergens, or dietary notes"
               value={draft.attributes}
               onChange={(e) =>
-                setDraft({ ...draft, attributes: e.target.value })
+                setDraft(suggestFood({ ...draft, attributes: e.target.value }))
               }
             />
           </label>
@@ -568,6 +555,7 @@ export function DishEditor({
             stay in this browser.
           </small>
         </details>
+        <FoodSuggestions dish={draft} onChange={setDraft} />
         {error && (
           <p role="alert" className={s.error}>
             {error}
@@ -590,13 +578,18 @@ export function DishEditor({
 export function SettingsPanel({
   settings,
   onSave,
-  onSetup,
+  onNotificationsChange,
+  saveError,
 }: {
   settings: MerchantSettings;
-  onSave: (settings: MerchantSettings) => void;
-  onSetup: () => void;
+  onSave: (details: Pick<MerchantSettings, "name" | "email">) => void;
+  onNotificationsChange: (patch: Partial<Notifications>) => void;
+  saveError?: string;
 }) {
   const [draft, setDraft] = useState(settings);
+  const [saved, setSaved] = useState(false);
+  const dirty = draft.name !== settings.name || draft.email !== settings.email;
+  const [notificationsSaved, setNotificationsSaved] = useState(false);
   const [audioError, setAudioError] = useState("");
   const audio = useRef<AudioContext | null>(null);
   useEffect(
@@ -609,10 +602,8 @@ export function SettingsPanel({
     key: K,
     value: Notifications[K],
   ) {
-    setDraft({
-      ...draft,
-      notifications: { ...draft.notifications, [key]: value },
-    });
+    onNotificationsChange({ [key]: value });
+    setNotificationsSaved(true);
   }
   async function testSound() {
     try {
@@ -624,7 +615,7 @@ export function SettingsPanel({
       oscillator.type = "sine";
       oscillator.frequency.value = 660;
       gain.gain.setValueAtTime(
-        (draft.notifications.volume / 100) * 0.2,
+        (settings.notifications.volume / 100) * 0.2,
         audio.current.currentTime,
       );
       gain.gain.exponentialRampToValueAtTime(
@@ -644,11 +635,13 @@ export function SettingsPanel({
       className={s.settingsForm}
       onSubmit={(e) => {
         e.preventDefault();
-        onSave(draft);
+        if (!dirty) return;
+        onSave({ name: draft.name, email: draft.email });
+        setSaved(true);
       }}
     >
       <section className={s.panel}>
-        <h2>Your restaurant</h2>
+        <h2>Restaurant Details</h2>
         <div className={s.form}>
           <label>
             Restaurant name
@@ -668,6 +661,14 @@ export function SettingsPanel({
             />
           </label>
         </div>
+        <div className={s.restaurantDetailsActions}>
+          <div className={s.settingsSaveRow}>
+            <p role="status" className={s.settingsSaveStatus}>
+              {saveError ? "Could not save changes on this device." : dirty ? "Unsaved changes" : saved ? "Settings saved" : ""}
+            </p>
+            <button className={s.primary} type="submit" disabled={!dirty}>Save Changes <Check size={18} aria-hidden="true" /></button>
+          </div>
+        </div>
       </section>
       <section className={s.panel}>
         <h2>Notifications</h2>
@@ -685,7 +686,7 @@ export function SettingsPanel({
               {label}
               <input
                 type="checkbox"
-                checked={draft.notifications[key]}
+                checked={settings.notifications[key]}
                 onChange={(e) => notification(key, e.target.checked)}
               />
             </label>
@@ -699,7 +700,7 @@ export function SettingsPanel({
           <label className={s.checkLabel}>
             <input
               type="checkbox"
-              checked={draft.notifications.sound}
+              checked={settings.notifications.sound}
               onChange={(e) => notification("sound", e.target.checked)}
             />{" "}
             Play alert sounds
@@ -707,44 +708,38 @@ export function SettingsPanel({
           <label className={s.checkLabel}>
             <input
               type="checkbox"
-              checked={draft.notifications.muted}
+              checked={settings.notifications.muted}
               onChange={(e) => notification("muted", e.target.checked)}
             />{" "}
             Mute all sounds
           </label>
           <label className={s.volumeLabel}>
-            Volume <output>{draft.notifications.volume}%</output>
+            Volume <output>{settings.notifications.volume}%</output>
             <input
               type="range"
+              aria-label="Volume"
               min="0"
               max="100"
-              value={draft.notifications.volume}
+              value={settings.notifications.volume}
               onChange={(e) => notification("volume", Number(e.target.value))}
             />
           </label>
           <button
             type="button"
             className={s.secondary}
-            disabled={!draft.notifications.sound || draft.notifications.muted}
+            disabled={!settings.notifications.sound || settings.notifications.muted}
             onClick={testSound}
           >
             <Volume2 size={18} /> Test Sound
           </button>
           {audioError && <p role="alert">{audioError}</p>}
         </details>
+        <p role="status" className={s.settingsSaveStatus}>
+          {saveError ? "Could not save preferences on this device." : notificationsSaved ? "Preferences saved" : ""}
+        </p>
       </section>
-      <div className={s.sectionRow}>
-        <button className={s.secondary} type="button" onClick={onSetup}>
-          {settings.onboardingDone
-            ? "Review Setup"
-            : settings.onboardingStep > 0
-              ? "Resume Setup"
-              : "Restaurant Setup"}
-        </button>
-        <button className={s.primary} type="submit">
-          Save Settings <Check size={18} />
-        </button>
-      </div>
+      <POSSettings />
+      <MenuInsights />
       <p className={s.demoNote}>
         Preview preferences are saved on this device. Live alerts are not
         connected.
@@ -919,6 +914,7 @@ export function Onboarding({
   onImport: (items: MenuDish[]) => void;
 }) {
   const step = state.settings.onboardingStep;
+  const [details, setDetails] = useState({ name: state.settings.name, email: state.settings.email });
   const [importing, setImporting] = useState(false);
   const names = [
     "Your Restaurant",
@@ -933,16 +929,17 @@ export function Onboarding({
           <span key={name} className={i <= step ? s.progressDone : ""} />
         ))}
       </div>
-      <p className={s.muted}>Step {step + 1} of 4 · Saved automatically</p>
+      <p className={s.muted}>Step {step + 1} of 4</p>
       {step === 0 && (
         <div className={s.form}>
+          <p className={s.muted}>Save & Continue saves these details. Closing leaves edits unsaved.</p>
           <label>
             Restaurant name
             <input
               required
-              value={state.settings.name}
+              value={details.name}
               onChange={(e) =>
-                onChange({ ...state.settings, name: e.target.value })
+                setDetails({ ...details, name: e.target.value })
               }
             />
           </label>
@@ -950,9 +947,9 @@ export function Onboarding({
             Contact email
             <input
               type="email"
-              value={state.settings.email}
+              value={details.email}
               onChange={(e) =>
-                onChange({ ...state.settings, email: e.target.value })
+                setDetails({ ...details, email: e.target.value })
               }
             />
           </label>
@@ -1016,17 +1013,18 @@ export function Onboarding({
           className={s.primary}
           disabled={
             step === 0 &&
-            (!state.settings.name.trim() ||
-              !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.settings.email))
+            (!details.name.trim() ||
+              !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email))
           }
           onClick={() => {
             if (step === 3) {
               onChange({ ...state.settings, onboardingDone: true });
               onClose();
-            } else onChange({ ...state.settings, onboardingStep: step + 1 });
+            } else if (step === 0) onChange({ ...state.settings, name: details.name.trim(), email: details.email.trim(), onboardingStep: 1 });
+            else onChange({ ...state.settings, onboardingStep: step + 1 });
           }}
         >
-          {step === 3 ? "Go to Home" : "Continue"}
+          {step === 3 ? "Go to Home" : step === 0 ? "Save & Continue" : "Continue"}
           <ChevronRight size={18} />
         </button>
       </div>

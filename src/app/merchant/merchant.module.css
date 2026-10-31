@@ -775,13 +775,23 @@
   transform: translateX(12px);
 }
 .editButton {
-  font-size: 12px;
-  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  min-width: 76px;
   min-height: 44px;
+  flex-shrink: 0;
+  border: 1px solid #dcded3;
+  border-radius: 12px;
+  background: #faf9f5;
+  font-size: 13px;
+  font-weight: 500;
   color: #5c6555;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  text-decoration: none;
 }
+.editButton:hover { background: #f0f2e9; }
 .overlay {
   position: fixed;
   inset: 0;
@@ -1665,3 +1675,96 @@
     --section-gap: var(--space-2);
   }
 }
+
+/* Prototype experiences share the existing Merchant spacing and control styles. */
+.prototypeGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.prototypeGrid label, .prototypeStack { display: flex; flex-direction: column; gap: 8px; margin-block: 16px; }
+.prototypeStack textarea { min-height: 104px; resize: vertical; }
+.prototypeHistory { padding-left: 24px; max-height: 220px; overflow-y: auto; }
+.prototypeHistory li { margin-block: 16px; }
+.insightList { list-style: none; padding: 0; display: grid; gap: 24px; margin-top: 24px; }
+.insightList meter { width: 100%; height: 16px; accent-color: #e44f2e; }
+@media (max-width: 600px) { .prototypeGrid { grid-template-columns: 1fr; gap: 0; } }
+.prototypeGrid input, .prototypeGrid select, .prototypeStack input, .prototypeStack select, .prototypeStack textarea { width: 100%; min-width: 0; min-height: 48px; border: 1px solid #d9dbd0; border-radius: 12px; background: #fffdfa; color: inherit; font: inherit; padding: 12px 16px; box-sizing: border-box; }
+.prototypeStack input[type="number"] { max-width: 176px; }
+.insightList .row { gap: 16px; flex-wrap: wrap; }
+.syncPanel { margin-bottom: var(--section-gap); }
+.prototypeGrid select, .prototypeStack select, .dishEditor select {
+  appearance: none;
+  padding-right: 48px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%234b5549' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 20px;
+}
+.insightsFilter { max-width: 240px; }
+.syncRefresh { width: 48px; min-width: 48px; height: 48px; padding: 0; flex-shrink: 0; }
+.syncSpinning { animation: merchantSyncSpin 1s linear infinite; }
+@keyframes merchantSyncSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .syncSpinning { animation: none; } }
+.foodSuggestions { padding: 16px; border: 1px solid #e5e5dc; border-radius: 16px; background: #faf9f5; margin-block: 16px; }
+.foodSuggestions h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; }
+.suggestionGroup { display: grid; gap: 8px; margin-top: 16px; }
+.suggestionChips { display: flex; flex-wrap: wrap; gap: 8px; }
+.suggestionChip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; min-height: 44px; border: 1px solid #d9dbd0; border-radius: 24px; background: white; color: inherit; font: inherit; cursor: pointer; }
+.suggestionEntry { display: flex; gap: 8px; align-items: center; }
+.suggestionEntry input { min-width: 0; flex: 1; width: 100%; min-height: 48px; padding: 12px; border: 1px solid #d9dbd0; border-radius: 12px; background: white; color: inherit; font: inherit; box-sizing: border-box; }
+.suggestionHidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.importReview { list-style: none; padding: 0; }
+
+/* Dish editor: related fields share their grid tracks, without the quantity cap. */
+.dishEditor > .formGrid input { max-width: none; }
+.dishOptions > summary::after, .dishOptions[open] > summary::after { content: none; }
+.dishOptionsChevron { margin-left: auto; flex-shrink: 0; transition: transform 160ms ease; }
+.dishOptions[open] > summary .dishOptionsChevron { transform: rotate(180deg); }
+.dishOptions { padding-block: 8px; border-bottom: 1px solid #e5e5dc; }
+@media (prefers-reduced-motion: reduce) { .dishOptionsChevron { transition: none; } }
+
+/* In-progress orders: information and actions share a balanced card grid. */
+.progressCard { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.progressInfo, .progressActions { min-width: 0; }
+.progressInfo { display: grid; align-content: start; gap: 16px; }
+.progressInfo .orderDishes, .progressInfo .orderTime, .progressCustomer { margin: 0; }
+.progressInfo .orderDishes p { overflow-wrap: anywhere; }
+.progressCustomer { color: #687164; font-size: 14px; overflow-wrap: anywhere; }
+.progressActions { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+.progressActions > .primary { width: 100%; min-height: 48px; }
+.progressActions > .inlineActions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.progressActions .secondary { width: 100%; min-height: 48px; white-space: normal; }
+.progressCard .progressDelivery { grid-column: 1 / -1; margin: 0; padding-top: 8px; }
+@media (min-width: 760px) {
+  .progressCard { grid-template-columns: minmax(0, 1fr) minmax(220px, 256px); gap: 16px 24px; }
+  .progressActions > span { text-align: right; }
+}
+.photoUpload { border: 1px solid #e5e5dc; border-radius: 16px; padding: 16px; }
+.photoUpload h3 { display: flex; gap: 8px; align-items: center; margin: 0 0 16px; font-size: 16px; }
+.photoUpload small { display: block; color: #737a6f; line-height: 1.5; }
+.uploadPreview { display: block; width: 96px; height: 96px; max-height: 96px; object-fit: contain; border-radius: 12px; margin-bottom: 12px; background: #f3f2ed; }
+.form .photoPicker { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 8px 16px; border: 1px solid #dcded3; border-radius: 12px; cursor: pointer; overflow: hidden; }
+.form .photoPicker input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.photoPicker:focus-within { outline: 2px solid #b43b25; outline-offset: 3px; }
+.uploadedDishPhoto { display: block; width: 100%; object-fit: cover; background: none; }
+.noDishPhoto { display: grid; place-items: center; background: #f1f0ea; color: #737a6f; }
+.photoUpload:has(.uploadPreview) { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center; }
+.photoUpload:has(.uploadPreview) h3 { grid-column: 1 / -1; margin: 0; }
+.photoUpload:has(.uploadPreview) .uploadPreview { margin: 0; }
+.photoUpload:has(.uploadPreview) > .inlineActions { grid-column: 2; }
+.photoUpload > small, .photoUpload > [role="alert"], .photoUpload > [role="status"] { grid-column: 1 / -1; }
+.photoUpload > [role="status"]:empty { display: none; }
+@media (max-width: 430px) { .photoUpload:has(.uploadPreview) { grid-template-columns: 72px minmax(0, 1fr); } .photoUpload .uploadPreview { width: 72px; height: 72px; } }
+
+.photoUpload > small { margin-top: 12px; }
+.photoUpload:has(.uploadPreview) > small { margin-top: 0; }
+.settingsSaveRow { display: flex; justify-content: flex-end; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 24px; }
+.settingsSaveRow > .primary { width: auto; min-height: 48px; padding: 12px 20px; }
+.settingsSaveStatus { margin: 0; color: #737a6f; font-size: 13px; }
+.restaurantSetup { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.restaurantSetup p { margin: 8px 0 0; }
+.restaurantSetup > .secondary { width: auto; min-height: 48px; padding: 12px 20px; }
+
+.restaurantDetailsActions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: 24px; }
+.restaurantDetailsActions .settingsSaveRow { margin-top: 0; margin-left: auto; }
+.setupLink { min-height: 44px; padding: 8px 0; border: 0; background: none; color: #56634e; text-decoration: underline; text-underline-offset: 4px; font: inherit; font-size: 14px; cursor: pointer; }
+.setupPrompt { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 20px 24px; margin-bottom: 32px; border-radius: 16px; background: #f0f2e9; }
+.setupPrompt p { margin: 8px 0 0; color: #687164; font-size: 14px; }
+.setupPrompt > button { min-height: 48px; width: auto; }

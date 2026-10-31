@@ -1,4 +1,5 @@
 "use client";
+import { MenuInsights } from "./merchant-prototypes";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
@@ -314,6 +315,12 @@ export default function Merchant() {
           <p className={s.muted}>Opening your kitchen…</p>
         ) : (
           <>
+            {!state.settings.onboardingDone && (
+              <section className={s.setupPrompt} aria-label="Restaurant onboarding">
+                <div><strong>Set up your restaurant</strong><p>{state.settings.onboardingStep > 0 ? "Pick up where you left off." : "Review your details and add your menu."}</p></div>
+                <button type="button" className={s.primary} onClick={() => setSetup(true)}>{state.settings.onboardingStep > 0 ? "Continue Setup" : "Get Started"}</button>
+              </section>
+            )}
             {tab === "Home" && (
               <div className={s.homeContent}>
                 <section
@@ -437,6 +444,15 @@ export default function Merchant() {
                 filter={filter}
                 setFilter={setFilter}
                 onAction={orderAction}
+                onDemoOrder={() => {
+                  const id = `DEMO-${Date.now().toString(36).toUpperCase()}`;
+                  setState(previous => ({...previous, orders: [...previous.orders, {
+                    id, customer: "Demo guest", dish: "1 × Harvest bowl", total: 14.5,
+                    status: "New", time: "Just now", minutes: 20, problem: "",
+                  }]}));
+                  setNotice("Fictional demo order added. No real customer involved.");
+                }}
+                onDelay={(id, minutes) => setState(previous => ({...previous, orders: previous.orders.map(order => order.id === id && !["Completed", "Cancelled"].includes(order.status) ? {...order, minutes: order.minutes + minutes} : order)}))}
                 onReopen={(id) => {
                   setState((previous) => reopenOrder(previous, id));
                   setFilter("In Progress");
@@ -464,12 +480,14 @@ export default function Merchant() {
             )}
             {tab === "Settings" && (
               <SettingsPanel
+                saveError={storageError}
                 settings={state.settings}
-                onSave={(settings) => {
-                  setState((previous) => ({ ...previous, settings }));
-                  setNotice("Settings saved.");
+                onSave={(details) => {
+                  setState((previous) => ({ ...previous, settings: { ...previous.settings, ...details } }));
                 }}
-                onSetup={() => setSetup(true)}
+                onNotificationsChange={(patch) => {
+                  setState((previous) => ({ ...previous, settings: { ...previous.settings, notifications: { ...previous.settings.notifications, ...patch } } }));
+                }}
               />
             )}
             {tab === "AI Help" && (
@@ -524,6 +542,7 @@ export default function Merchant() {
       )}
       {insights && (
         <Modal title="Today’s Insights" onClose={() => setInsights(false)}>
+          <MenuInsights />
           <div className={s.insightIntro}>
             <BarChart3 size={35} />
             <p>A quick look at your demo orders.</p>

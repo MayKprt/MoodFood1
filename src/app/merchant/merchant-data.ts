@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { suggestFood } from "./food-suggestions";
 
 export const STORAGE_KEY = "moodfood-merchant-preview";
 export const dishSchema = z.object({
@@ -9,6 +10,8 @@ export const dishSchema = z.object({
   category: z.string().default("Bowls"),
   available: z.boolean(),
   photo: z.number().int().min(0).max(3).default(0),
+  uploadedPhoto: z.string().max(450000).refine(value => value === "" || /^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(value), "Invalid photo").default(""),
+  photoRemoved: z.boolean().default(false),
   trackQuantity: z.boolean().default(false),
   quantity: z.number().int().nonnegative().default(0),
   schedule: z.boolean().default(false),
@@ -16,6 +19,9 @@ export const dishSchema = z.object({
   until: z.string().default("21:00"),
   modifiers: z.string().default(""),
   attributes: z.string().default(""),
+  foodTags: z.array(z.string().max(40)).max(12).default([]),
+  suggestedMoods: z.array(z.string().max(40)).max(12).default([]),
+  suggestionsEdited: z.boolean().default(false),
 });
 export type MenuDish = z.infer<typeof dishSchema>;
 const orderSchema = z.object({
@@ -259,13 +265,13 @@ export function importMenu(text: string): MenuDish[] {
       /^(?:"((?:[^"]|"")+)"|([^,]+)),(\d+(?:\.\d{1,2})?)$/,
     );
     if (!parts) throw new Error(`Check the name and price on line ${i + 2}.`);
-    return dishSchema.parse({
+    return suggestFood(dishSchema.parse({
       id: crypto.randomUUID(),
       name: (parts[1]?.replaceAll('""', '"') ?? parts[2]).trim(),
       price: Number(parts[3]),
       category: "Imported",
       available: true,
       photo: i % 4,
-    });
+    }));
   });
 }
